@@ -5,24 +5,80 @@ import java.util.Scanner;
 class Game {
    static Scanner scanner = new Scanner(System.in);
    static Random random = new Random();
-   public static int fromNum;
+   private static int fromNum;
    private static int tillNum;
 
+   enum Outcome {
+      InputIsHigher,
+      InputIsLower,
+      InputMatched;
+
+      @Override
+      public String toString() {
+         switch (this) {
+            case InputIsHigher: return "Your Number is HIGHER. Retry!";
+            case InputIsLower:  return "Your Number is LOWER. Retry!";
+            case InputMatched:  return "Congratualtions! You guessed it Right.";
+            default:            return "";
+         }
+      }
+   }
+
+   enum Input {
+      NotAnInt(-1),
+      NotInRng(-2),
+      Num(0);
+
+      public int value;
+
+      public static Input Num(int n) {
+         Input num = Input.Num;
+         num.value = n;
+         return num;
+      } 
+
+      Input(int i) {
+         this.value = i;
+      }
+
+      @Override
+      public String toString() {
+         switch (this) {
+            case NotAnInt: return "Your Number must be a Valid Number";
+            case NotInRng: return "Your Number must be between " + fromNum + " - " + tillNum;
+            case Num:      return "Num(" + this.value + ")";
+            default:       return "";
+         }
+      }
+   }
+
+   // Game Constructor
    Game(int from, int till) {
       fromNum = from;
       tillNum = till;
    }
 
-   static int getInput() {
+   static Input getInput() {
       try {
          System.out.println("Enter a number -");
          int input = scanner.nextInt();
          if (input >= fromNum && input <= tillNum)
-            return input;
-         return -1;
+            return Input.Num(input);
+         return Input.NotInRng;
       } catch (InputMismatchException e) {
-         return -1;
+         scanner.next(); // discarding any non-int inputs
+         return Input.NotAnInt;
       }
+   }
+
+   static Outcome compare(int input, int rand) {
+      return (input > rand) ? Outcome.InputIsHigher :
+             (input < rand) ? Outcome.InputIsLower
+                            : Outcome.InputMatched;
+   }
+
+   static boolean isGameOver(Outcome outcome) {
+      return outcome == Outcome.InputMatched;
    }
 
    void run() {      
@@ -31,25 +87,18 @@ class Game {
 
       int rand = random.nextInt(fromNum, tillNum);
       int tries = 0;
+      Outcome outcome = null;
 
-      while (true) {
-         int input = getInput();
-         if (input == -1) {
-            System.out.println("Wrong Input! Try again");
+      while (!isGameOver(outcome)) {
+         Input input = getInput();
+         tries++; // Even invalid input count as tries
+         if (input != Input.Num) { // Comparing types not the underneath ordinal or num values
+            System.out.println(input.toString() + "\n");
             continue;
          }
-         tries++;
-         if (input > rand) {
-            System.out.println("Very High! Try again\n");
-            continue;
-         } else
-         if (input < rand) {
-            System.out.println("Very Low! Try again\n");
-            continue;
-         } else {
-            System.out.println("\nCongratulations! number matched");
-            break;
-         }
+
+         outcome = compare(input.value, rand);
+         System.out.println(outcome.toString() + "\n");
       }
       
       System.out.println("You took " + tries + " tries.");
