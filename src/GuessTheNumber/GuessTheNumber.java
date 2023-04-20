@@ -1,3 +1,4 @@
+package GuessTheNumber;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
@@ -60,7 +61,7 @@ class Game {
 
    static Input getInput() {
       try {
-         System.out.println("Enter a number -");
+         System.out.printf("Enter a number: ");
          int input = scanner.nextInt();
          if (input >= fromNum && input <= tillNum)
             return Input.Num(input);
@@ -83,7 +84,7 @@ class Game {
 
    void run() {      
       System.out.println("Welcome to Guess The Number game");
-      System.out.printf("Enter a value from %d to %d\n\n", fromNum, tillNum);
+      System.out.printf("Enter a value between %d to %d\n\n", fromNum, tillNum);
 
       int rand = random.nextInt(fromNum, tillNum);
       int tries = 0;
