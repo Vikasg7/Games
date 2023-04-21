@@ -1,2 +1,1 @@
-
-src/*.class
+.mypy_cache
