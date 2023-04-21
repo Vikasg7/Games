@@ -1,5 +1,5 @@
 ## Games
-A few terminal/console based games implemented in Java.
+A few terminal/console based games implemented.
 
 ### Ingredients
 - [x] Guess the Number
