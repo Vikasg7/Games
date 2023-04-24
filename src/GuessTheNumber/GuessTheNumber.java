@@ -103,7 +103,7 @@ class Game {
       }
       
       System.out.println("You took " + tries + " tries.");
-   }   
+   }
 }
 
 public class GuessTheNumber {
