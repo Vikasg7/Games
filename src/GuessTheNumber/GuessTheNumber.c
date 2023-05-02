@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 // Player guessing Range
 typedef struct {
@@ -44,29 +45,25 @@ char* outcome_to_str(outcome outcome) {
 }
 
 int get_input() {
-  int char_cnt = 5; // +1 for \0
-  char* str = malloc(sizeof(char) * char_cnt);
+  char str[100]; char* rem;
   printf("Enter a Number: ");
-  fgets(str, char_cnt, stdin);
-  int num = strtol(str, NULL, 10);
+  fgets(str, sizeof(str), stdin);
+  int num = strtol(str, &rem, 10);
+  if (strlen(rem) > 1) return 0; // rem will always contain the \n for pressed enter, hence > 1
   return num;
 }
 
 flag validate(int input, range* rng) {
-  return (
-    input == 0            ? NOT_A_NUM :
-    input < rng->start ||
-    input > rng->end      ? NOT_IN_RNG
-                          : VALID_NUM 
-  );
+  return input == 0            ? NOT_A_NUM :
+         input < rng->start ||
+         input > rng->end      ? NOT_IN_RNG
+                               : VALID_NUM;
 }
 
 outcome compare(int input, int rand) {
-  return (
-    input > rand ? HI :
-    input < rand ? LO 
-                 : EQ
-  );
+  return input > rand ? HI :
+         input < rand ? LO 
+                      : EQ;
 }
 
 bool is_game_over(outcome outcome) {
@@ -91,7 +88,7 @@ void run_game(range* rng) {
   outcome outcome;
 
   while (!is_game_over(outcome)) {
-    int   num = get_input();
+    int num = get_input();
     tries++;
     flag  flg = validate(num, rng);
     if (!is_valid(flg)) {
