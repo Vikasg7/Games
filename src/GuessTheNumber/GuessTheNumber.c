@@ -114,6 +114,7 @@ void run_game(range* rng) {
 }
 
 void print_help() {
+  printf("\n");
   printf("A Simple Guess The Number Game written in C\n");
   printf(USAGE);
 }
@@ -168,6 +169,7 @@ void print_err_msgs(char** err_msgs) {
     if (err_msgs[i] == NULL) break;
     fprintf(stderr, "%s\n", err_msgs[i]);
   }
+  printf("Try `GuessTheNumber --help`\n");
 }
 
 int main(int argc, char** argv) {
