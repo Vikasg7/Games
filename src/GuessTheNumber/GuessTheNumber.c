@@ -4,6 +4,17 @@
 #include <time.h>
 #include <string.h>
 
+#define USAGE "USAGE:\n"\
+              "  GuessTheNumber [-s,--start <StartNumber> -e,--end <EndNumber>] <StartNumber> <EndNumber>\n"\
+              "OPTIONS:\n"\
+              "  -s, --start\t" "Start of the Range as Number\n"\
+              "  -e, --end\t"   "End of the Range as Number\n"\
+              "  -h, --help\t"  "Prints help\n"\
+              "EXAMPLE:\n"\
+              "  GuessTheNumber 1 30\n"\
+              "  GuessTheNumber -s 1 -e 30\n"\
+              "  GuessTheNumber --start 1 --end 30\n"
+
 // Player guessing Range
 typedef struct {
   int start;
@@ -90,7 +101,7 @@ void run_game(range* rng) {
   while (!is_game_over(outcome)) {
     int num = get_input();
     tries++;
-    flag  flg = validate(num, rng);
+    flag flg = validate(num, rng);
     if (!is_valid(flg)) {
       printf("%s\n\n", flag_to_str(flg));
       continue;
@@ -102,8 +113,70 @@ void run_game(range* rng) {
   printf("You took %d tries.\n", tries);
 }
 
-int main(int argc, char const* argv[]) {
-  range rng = { .start = 1, .end = 30 };
+void print_help() {
+  printf("A Simple Guess The Number Game written in C\n");
+  printf(USAGE);
+}
+
+range parse_range_from_args(int argc, char** argv) {
+  range rng = {-1, -1};
+  if (argc == 3 && argv[1][0] != '-') {
+    rng.start = atoi(argv[1]);
+    rng.end = atoi(argv[2]);
+    return rng;
+  }
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--start") == 0)
+      rng.start = atoi(argv[i+1]); else 
+    if (strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--end") == 0)
+      rng.end = atoi(argv[i+1]); else 
+    if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+      print_help();
+      exit(0);
+    }
+  }
+  return rng;
+}
+
+#define MAX_ERR_COUNT 3
+
+char** validate_range(range *rng) {
+  char** err_msgs = calloc(MAX_ERR_COUNT, sizeof(char *));
+  int err_count = 0;
+
+  if (rng->start == -1) 
+    err_msgs[err_count++] = "Error: Start number is not provided."; else
+  if (rng->start == 0) 
+    err_msgs[err_count++] = "Error: Start number must be a valid non-zero number.";
+  if (rng->end == -1) 
+    err_msgs[err_count++] = "Error: End number is not provided."; else
+  if (rng->end == 0) 
+    err_msgs[err_count++] = "Error: End number must be a valid non-zero number.";
+  if (rng->start != -1 && rng->end !=-1 && rng->end < rng->start) 
+    err_msgs[err_count++] = "Error: End number must be greater than start number.";
+
+  if (err_count == 0) {
+    free(err_msgs);
+    return NULL;
+  }
+
+  return err_msgs;
+}
+
+void print_err_msgs(char** err_msgs) {
+  for (int i = 0; i < MAX_ERR_COUNT; i++) {
+    if (err_msgs[i] == NULL) break;
+    fprintf(stderr, "%s\n", err_msgs[i]);
+  }
+}
+
+int main(int argc, char** argv) {
+  range rng = parse_range_from_args(argc, argv);
+  char** err_msgs = validate_range(&rng);
+  if (err_msgs) {
+    print_err_msgs(err_msgs);
+    return 1;
+  }
   run_game(&rng);
   return 0;
 }
